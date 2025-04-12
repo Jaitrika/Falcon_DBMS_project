@@ -2,14 +2,101 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Flight Booking System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+        }
+
+        body {
+            background: url('static/images/image.png') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .header img {
+            height: 80px;
+        }
+
+        .title {
+            font-size: 48px;
+            margin-top: 20px;
+        }
+
+        .buttons {
+            margin-top: 40px;
+        }
+
+        .buttons a {
+            text-decoration: none;
+            padding: 12px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .buttons a:hover {
+            background-color: #2980b9;
+        }
+
+        .center-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #ccc;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Falcon Airlines!</h1>
-    <p>This is your homepage.</p>
-    <a href="/book-flight">Book a Flight</a>
-    <br>
-    <a href="/manage-flights">Manage Flights</a>
+    <div class="overlay"></div>
+
+    <div class="header">
+        <img src="static/images/logo.png" alt="Logo">
+    </div>
+
+    <div class="center-box">
+        <h1 class="title">Welcome to Falcon</h1>
+        <div class="buttons">
+            <a href="/login">Login</a>
+            <a href="/signup">Sign Up</a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 FlightBooking Inc. All rights reserved.
+    </footer>
 </body>
 </html>
