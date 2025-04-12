@@ -1,0 +1,65 @@
+<!--&lt;!&ndash; templates/login.html &ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>Login</title>-->
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div class="form-container">-->
+<!--        <h2>Login</h2>-->
+<!--        <form method="POST" action="/login">-->
+<!--  <input type="email" name="email" placeholder="Email" required>-->
+<!--  <input type="password" name="password" placeholder="Password" required>-->
+<!--  <button type="submit">Login</button>-->
+<!--</form>-->
+
+<!--    </div>-->
+<!--</body>-->
+<!--</html>-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Login Form Design</title>
+      <link rel="stylesheet" href="static/css/style.css">
+   </head>
+   <body>
+   <!-- Flash message display -->
+   {% with messages = get_flashed_messages(with_categories=true) %}
+     {% if messages %}
+       {% for category, message in messages %}
+         <div class="alert {{ category }}">
+           {{ message }}
+         </div>
+       {% endfor %}
+     {% endif %}
+   {% endwith %}
+
+   <div class="wrapper">
+      <div class="title">
+         User Login
+      </div>
+      <form method="POST" action="{{ url_for('login') }}">
+         <div class="adminlogin-link">
+            Login as Admin instead? <a href="#">Login now</a>
+         </div>
+         <div class="field">
+            <input type="text" name="email" required>
+            <label>Email Address</label>
+         </div>
+         <div class="field">
+            <input type="password" name="password" required>
+            <label>Password</label>
+         </div>
+         <div class="field">
+            <input type="submit" value="Login">
+         </div>
+         <div class="signup-link">
+            Don't have an account? <a href="#">Signup now</a>
+         </div>
+      </form>
+   </div>
+</body>
+
+</html>
