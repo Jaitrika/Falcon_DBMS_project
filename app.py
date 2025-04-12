@@ -75,8 +75,35 @@ def signup():
  
      return render_template('signup.html')
 
-@app.route('/adminLogin')
-def adminLogin():
+@app.route('/adminLogin', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        admin_id = request.form.get('admin_id')
+
+        if not email or not admin_id:
+            flash('Email and Admin ID are required.', 'error')
+            return render_template('adminLogin.html')
+
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM admin WHERE Email = %s"
+            cursor.execute(query, (email,))
+            admin = cursor.fetchone()
+
+            if admin and admin['AdminID'] == int(admin_id):
+                session['admin_id'] = admin['AdminID']
+                flash('Admin login successful!', 'success')
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid email or admin ID', 'error')
+                return render_template('adminLogin.html')
+
+        except Exception as e:
+            print("Admin login error:", e)
+            flash('Something went wrong. Try again.', 'error')
+            return render_template('adminLogin.html')
+
     return render_template('adminLogin.html')
 
 
