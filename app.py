@@ -79,11 +79,6 @@ def signup():
 def adminLogin():
     return render_template('adminLogin.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
 
 @app.route('/book-flight')
 def book_flight():
