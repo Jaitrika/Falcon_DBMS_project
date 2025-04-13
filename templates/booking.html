@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #b19cd9, #8a71af);
+            background: linear-gradient(135deg, #b19cd9, #6a5acd);
             font-family: 'Poppins', sans-serif;
             min-height: 100vh;
             display: flex;
@@ -15,64 +15,124 @@
             justify-content: center;
             margin: 0;
             padding: 20px;
-            color: navy; /* Text color added */
+            color: #1a237e;
         }
 
         .booking-form-w3layouts {
-            background: #4B0081;
+            background: #749cc9;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(105, 73, 148, 0.2);
+            box-shadow: 0 10px 30px rgba(83, 61, 136, 0.2);
             width: 100%;
-            max-width: 800px;
-            border: 2px solid #e6d4ff;
-            color: navy; /* Ensure form content is navy */
+            max-width: 850px;
+            border: 2px solid #d3c3ff;
+            color: #1a237e;
         }
 
-        input, select, h2, h6, label, option {
-            color: navy; /* Apply navy color to all key elements */
+        h2, h6, label {
+            color: #3c277d;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #b39ddb;
+            border-radius: 8px;
+            background: #f8f6ff;
+            color: #1a237e;
+            font-size: 14px;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #7c4dff;
+            box-shadow: 0 0 8px rgba(124, 77, 255, 0.3);
+            outline: none;
         }
 
         ::placeholder {
-            color: navy;
-            opacity: 0.6;
+            color: #5c4c88;
+            opacity: 0.7;
         }
 
-        input::placeholder,
-        input::-webkit-input-placeholder {
-            color: navy;
+        .main-flex-w3ls-sectns,
+        .triple-wthree {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        input:-moz-placeholder {
-            color: navy;
+        .main-flex-w3ls-sectns > div,
+        .triple-wthree > div {
+            flex: 1;
         }
 
-        input::-moz-placeholder {
-            color: navy;
+        .radio-section {
+            margin-top: 30px;
         }
 
-        input:-ms-input-placeholder {
-            color: navy;
+        .radio-buttons-w3-agileits {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 30px;
+        }
+
+        .radio-buttons-w3-agileits li {
+            position: relative;
+        }
+
+        .radio-buttons-w3-agileits input[type="radio"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .form-buttons input[type="submit"],
+        .form-buttons input[type="reset"] {
+            background: linear-gradient(135deg, #7c4dff, #9575cd);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .form-buttons input[type="submit"]:hover,
+        .form-buttons input[type="reset"]:hover {
+            background: linear-gradient(135deg, #9575cd, #7c4dff);
+            transform: scale(1.03);
         }
     </style>
 </head>
 <body>
     <div class="booking-form-w3layouts">
         <form action="{{ url_for('booking') }}" method="post">
-            <h2 class="sub-heading-agileits">  Bookings </h2>
+            <h2 class="sub-heading-agileits">Flight Bookings</h2>
 
-            <!-- Fixed City Selection with Proper Datalist -->
+            <!-- City Selection -->
             <div class="main-flex-w3ls-sectns">
-                <div class="field-agileinfo-spc form-w3-agile-text1">
-                    <input list="source" name="source" placeholder="From" class="form-control" required>
+                <div>
+                    <label>From</label>
+                    <input list="source" name="source" placeholder="Departure city" required>
                     <datalist id="source">
                         {% for city in cities %}
                             <option value="{{ city }}">
                         {% endfor %}
                     </datalist>
                 </div>
-                <div class="field-agileinfo-spc form-w3-agile-text2">
-                    <input list="destination" name="destination" placeholder="To" class="form-control" required>
+                <div>
+                    <label>To</label>
+                    <input list="destination" name="destination" placeholder="Arrival city" required>
                     <datalist id="destination">
                         {% for city in cities %}
                             <option value="{{ city }}">
@@ -81,14 +141,16 @@
                 </div>
             </div>
 
-            <!-- Date Selection with Proper Structure -->
+            <!-- Dates & Class -->
             <div class="main-flex-w3ls-sectns">
-                <div class="field-agileinfo-spc form-w3-agile-text1">
-                    <input id="datepicker" name="departure_date" type="date" placeholder="Departure Date" required class="form-control">
+                <div>
+                    <label>Departure Date</label>
+                    <input type="date" name="departure_date" required>
                 </div>
-                <div class="field-agileinfo-spc form-w3-agile-text2">
-                    <select id="travel-class" class="form-control" name="TravelClass" required>
-                        <option value="">Travel Class</option>
+                <div>
+                    <label>Travel Class</label>
+                    <select name="TravelClass" required>
+                        <option value="">Select Class</option>
                         <option value="Economy">Economy</option>
                         <option value="Business">Business</option>
                         <option value="First Class">First</option>
@@ -96,50 +158,49 @@
                 </div>
             </div>
 
-            <!-- Passenger Inputs with Correct Structure -->
+            <!-- Passenger Info -->
             <div class="triple-wthree">
-                <div class="field-agileinfo-spc form-w3-agile-text11">
-                    <input type="number" id="adults" name="adults" class="form-control" min="1" max="10" required placeholder="Adults (12+ Yrs)">
+                <div>
+                    <label>Adults (12+)</label>
+                    <input type="number" name="adults" min="1" max="10" required placeholder="Adults">
                 </div>
-                <div class="field-agileinfo-spc form-w3-agile-text22">
-                    <input type="number" id="children" name="children" class="form-control" min="0" max="10" required placeholder="Children (2-11 Yrs)">
+                <div>
+                    <label>Children (2-11)</label>
+                    <input type="number" name="children" min="0" max="10" required placeholder="Children">
                 </div>
-                <div class="field-agileinfo-spc form-w3-agile-text33">
-                    <input type="number" id="infants" name="infants" class="form-control" min="0" max="5" required placeholder="Infants (under 2 Yrs)">
+                <div>
+                    <label>Infants (Under 2)</label>
+                    <input type="number" name="infants" min="0" max="5" required placeholder="Infants">
                 </div>
             </div>
 
-            <!-- Radio Buttons with Proper Functionality -->
+            <!-- Trip Type -->
             <div class="radio-section">
-                <h6>Select your Fare</h6>
+                <h6>Trip Type</h6>
                 <ul class="radio-buttons-w3-agileits">
                     <li>
-                        <input type="radio" id="a-option" name="trip_type" value="one_way" required>
-                        <label for="a-option">One Way</label>
-                        <div class="check"></div>
+                        <input type="radio" id="one_way" name="trip_type" value="one_way" required>
+                        <label for="one_way">One Way</label>
                     </li>
                     <li>
-                        <input type="radio" id="b-option" name="trip_type" value="round_trip">
-                        <label for="b-option">Round-Trip</label>
-                        <div class="check">
-                            <div class="inside"></div>
-                        </div>
+                        <input type="radio" id="round_trip" name="trip_type" value="round_trip">
+                        <label for="round_trip">Round Trip</label>
                     </li>
                 </ul>
-                <div class="clear"></div>
             </div>
 
-            <!-- Return Date Field -->
+            <!-- Return Date -->
             <div class="main-flex-w3ls-sectns">
-                <div class="field-agileinfo-spc form-w3-agile-text1">
-                    <input id="datepicker1" name="return_date" type="date" placeholder="Return Date" class="form-control">
+                <div>
+                    <label>Return Date</label>
+                    <input type="date" name="return_date" placeholder="Optional">
                 </div>
             </div>
 
-            <!-- Form Buttons -->
+            <!-- Submit Buttons -->
             <div class="form-buttons">
                 <input type="submit" value="Search Flights ✈️">
-                <input type="reset" value="Clear Form ">
+                <input type="reset" value="Clear Form">
             </div>
         </form>
     </div>

@@ -1,133 +1,198 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head >-->
-<!--  <meta charset="UTF-8">-->
-<!--  <title>Ticket Summary</title>-->
-<!--  <style>-->
-<!--    body { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; }-->
-<!--    h2 { color: #333; }-->
-<!--    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }-->
-<!--    th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }-->
-<!--    th { background-color: #eee; }-->
-<!--  </style>-->
-<!--</head>-->
-<!--<body>-->
-
-<!--  <h2>Booking Details</h2>-->
-<!--  <p><strong>Booking ID:</strong> {{ booking[0] }}</p>-->
-<!--  <p><strong>Flight:</strong> {{ booking[1] }} ({{ booking[2] }})</p>-->
-<!--  <p><strong>From:</strong> {{ booking[3] }} | <strong>To:</strong> {{ booking[4] }}</p>-->
-<!--  <p><strong>Departure:</strong> {{ booking[5] }} | <strong>Arrival:</strong> {{ booking[6] }}</p>-->
-
-<!--  <h2>Tickets</h2>-->
-<!--  <table>-->
-<!--    <thead>-->
-<!--      <tr>-->
-<!--        <th>Passenger Name</th>-->
-<!--        <th>Nationality</th>-->
-<!--        <th>Seat Number</th>-->
-<!--        <th>Class</th>-->
-<!--        <th>Price</th>-->
-<!--        <th>Special Request</th>-->
-<!--      </tr>-->
-<!--    </thead>-->
-<!--    <tbody>-->
-<!--      {% for ticket in tickets %}-->
-<!--      <tr>-->
-<!--        <td>{{ ticket[1] }}</td>-->
-<!--        <td>{{ ticket[2] }}</td>-->
-<!--        <td>{{ ticket[3] }}</td>-->
-<!--        <td>{{ ticket[4] }}</td>-->
-<!--        <td>{{ ticket[5] }}</td>-->
-<!--        <td>{{ ticket[6] or 'None' }}</td>-->
-<!--      </tr>-->
-<!--      {% endfor %}-->
-<!--    </tbody>-->
-<!--  </table>-->
-
-<!--</body>-->
-<!--</html>-->
-
-<!--pretty ticket , needs to be used with commented css code from ticket_summary.css-->
 <!DOCTYPE html>
 <html lang="en">
-<head >
-  <link rel="stylesheet" href="{{ url_for('static', filename='ticket.css') }}">
-
-
+<head>
   <meta charset="UTF-8">
   <title>Ticket Summary</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/ticket_summary.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #b19cd9, #87cefa);
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #2d1e55;
+    }
 
+    .booking-details {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      max-width: 900px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .booking-details h2 {
+      color: #4b0082;
+      margin-bottom: 20px;
+    }
+
+    .container-fluid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .ticket {
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      width: 720px;
+      height: 260px;
+      display: flex;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .ticket:hover {
+      transform: translateY(-8px);
+    }
+
+    .ticket-head {
+      background: linear-gradient(to right, #6a5acd, #9370db);
+      color: white;
+      padding: 20px;
+      width: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 20px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      text-align: center;
+    }
+
+    .ticket-body {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      flex: 1;
+    }
+
+    .ticket-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .passenger h4, .flight-info h4 {
+      margin: 5px 0;
+      color: #4b0082;
+    }
+
+    .passenger p, .flight-info p {
+      margin: 0;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .flight-info-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .flight-date {
+      background: #eaeaff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: #333;
+      margin-top: 10px;
+      width: fit-content;
+    }
+
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+    }
+
+
+
+    @media (max-width: 768px) {
+      .ticket {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+      }
+
+      .ticket-head {
+        writing-mode: horizontal-tb;
+        width: 100%;
+        padding: 15px;
+      }
+
+      .ticket-body {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+
+    }
+  </style>
 </head>
 <body>
 
   <div class="booking-details">
-  <h2>Booking Details</h2>
-  <p><strong>Booking ID:</strong> {{ booking[0] }}</p>
-  <p><strong>Flight:</strong> {{ booking[1] }} ({{ booking[2] }})</p>
-  <p><strong>From:</strong> {{ booking[3] }} | <strong>To:</strong> {{ booking[4] }}</p>
-  <p><strong>Departure:</strong> {{ booking[5] }} | <strong>Arrival:</strong> {{ booking[6] }}</p>
-</div>
+    <h2>Booking Details</h2>
+    <p><strong>Booking ID:</strong> {{ booking[0] }}</p>
+    <p><strong>Flight:</strong> {{ booking[1] }} ({{ booking[2] }})</p>
+    <p><strong>From:</strong> {{ booking[3] }} | <strong>To:</strong> {{ booking[4] }}</p>
+    <p><strong>Departure:</strong> {{ booking[5] }} | <strong>Arrival:</strong> {{ booking[6] }}</p>
+  </div>
+
   <div class="container-fluid">
-  <div class="row">
     {% for ticket in tickets %}
-    <div class="col-sm-6 text-center">
-      <div class="ticket light">
-        <div class="ticket-head text-center" style="background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/584938/bg_15.png')">
-          <div class="layer"></div>
-          <div class="from-to">
-            {{ booking[3] }} <span class="icon icon-airplane">✈️</span> {{ booking[4] }}
-          </div>
+      <div class="ticket">
+        <div class="ticket-head">
+          {{ booking[3] }} ✈️ {{ booking[4] }}
         </div>
         <div class="ticket-body">
-          <div class="passenger">
-            <p>Passenger</p>
-            <h4>{{ ticket[1] }}</h4>
-            <p>Nationality: {{ ticket[2] }}</p>
-          </div>
-          <div class="flight-info row">
-            <div class="col-xs-6">
-              <p>Flight</p>
-              <h4>{{ booking[2] }}</h4>
+          <div class="ticket-info">
+            <div class="passenger">
+              <p>Passenger</p>
+              <h4>{{ ticket[1] }}</h4>
+              <p>Nationality: {{ ticket[2] }}</p>
             </div>
-            <div class="col-xs-6">
-              <p>Seat</p>
-              <h4>{{ ticket[3] }}</h4>
+            <div class="flight-info-group">
+              <div class="flight-info">
+                <p>Flight</p>
+                <h4>{{ booking[2] }}</h4>
+              </div>
+              <div class="flight-info">
+                <p>Seat</p>
+                <h4>{{ ticket[3] }}</h4>
+              </div>
+              <div class="flight-info">
+                <p>Class</p>
+                <h4>{{ ticket[4] }}</h4>
+              </div>
+              <div class="flight-info">
+                <p>Price</p>
+                <h4>₹{{ ticket[5] }}</h4>
+              </div>
+              <div class="flight-info">
+                <p>Special Request</p>
+                <h4>{{ ticket[6] or 'None' }}</h4>
+              </div>
+            </div>
+            <div class="flight-date">
+              {{ booking[5].strftime('%b-%d-%Y at %I:%M%p') }}
+            </div>
+            <div class="footer">
+              Disclaimer: This is a digital boarding pass. Please arrive at the gate 45 minutes before departure.
             </div>
           </div>
-          <div class="flight-info row mt-2">
-            <div class="col-xs-6">
-              <p>Class</p>
-              <h4>{{ ticket[4] }}</h4>
-            </div>
-            <div class="col-xs-6">
-              <p>Price</p>
-              <h4>₹{{ ticket[5] }}</h4>
-            </div>
-          </div>
-          <div class="flight-info row mt-2">
-            <div class="col-xs-12">
-              <p>Special Request</p>
-              <h4>{{ ticket[6] or 'None' }}</h4>
-            </div>
-          </div>
-          <div class="flight-date">
-            {{ booking[5].strftime('%b-%d-%Y at %I:%M%p') }}
-          </div>
-        </div>
-        <div class="footer">
-          <div class="disclaimer">
-            Disclaimer: This is a digital boarding pass. Please arrive at the gate 45 minutes before departure.
-          </div>
+
         </div>
       </div>
-    </div>
     {% endfor %}
   </div>
-</div>
-
-
 
 </body>
 </html>

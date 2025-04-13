@@ -1,7 +1,71 @@
-<h2>Confirm Payment</h2>
-<p>Flight: {{ flight_id }}</p>
-<p>Amount: ₹{{ total_price }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #b19cd9, #9fcfff);
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #1e3a5f;
+    }
 
-<form method="POST">
-  <button type="submit">Confirm Payment</button>
-</form>
+    .payment-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #4B0082;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+      margin: 10px 0;
+      color: #2e2b5f;
+    }
+
+    button {
+      margin-top: 30px;
+      background: #6a5acd;
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #5848b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="payment-container">
+    <h2>Confirm Payment</h2>
+    <p><strong>Flight:</strong> {{ flight_id }}</p>
+    <p><strong>Amount:</strong> ₹{{ total_price }}</p>
+
+    <form method="POST">
+      <button type="submit">Confirm Payment</button>
+    </form>
+  </div>
+
+</body>
+</html>
