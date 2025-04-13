@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(145deg, #ffecd2, #fcb69f);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1, h2 {
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .query-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff8f4;
+            border-radius: 10px;
+        }
+
+        .query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .query-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            width: 120px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #f26b38;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #d45a2b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f26b38;
+            color: white;
+        }
+
+        .no-results {
+            color: #666;
+            font-style: italic;
+            padding: 15px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-link a {
+            color: #f26b38;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking Details Query Interface</h1>
+
+        <!-- Query 1: User Bookings -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>1. Retrieve all bookings for a user</h2>
+                <form class="query-form" method="GET" action="/booking-details">
+                    <input type="number" name="user_id" placeholder="User ID" required>
+                    <input type="hidden" name="action" value="user_bookings">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'user_bookings' %}
+                {% if bookings_user %}
+                <table>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Flight ID</th>
+                        <th>Airline</th>
+                        <th>Flight Number</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Departure</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for booking in bookings_user %}
+                    <tr>
+                        <td>{{ booking.BookingID }}</td>
+                        <td>{{ booking.FlightID }}</td>
+                        <td>{{ booking.AirlineName }}</td>
+                        <td>{{ booking.FlightNumber }}</td>
+                        <td>{{ booking.Source }}</td>
+                        <td>{{ booking.Destination }}</td>
+                        <td>{{ booking.DepartureTime }}</td>
+                        <td>{{ booking.BookingStatus }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No bookings found for this user</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 2: Flight Tickets -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>2. Find tickets for a flight</h2>
+                <form class="query-form" method="GET" action="/booking-details">
+                    <input type="number" name="flight_id" placeholder="Flight ID" required>
+                    <input type="hidden" name="action" value="flight_tickets">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'flight_tickets' %}
+                {% if tickets_flight %}
+                <table>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Passenger Name</th>
+                        <th>Ticket ID</th>
+                        <th>Booking ID</th>
+                        <th>Passenger ID</th>
+                    </tr>
+                    {% for ticket in tickets_flight %}
+                    <tr>
+                        <td>{{ ticket.UserID }}</td>
+                        <td>{{ ticket.PassengerName }}</td>
+                        <td>{{ ticket.TicketID }}</td>
+                        <td>{{ ticket.BookingID }}</td>
+                        <td>{{ ticket.PassengerID }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No tickets found for this flight</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 3: Payment Status -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>3. Get booking & payment details</h2>
+                <form class="query-form" method="GET" action="/booking-details">
+                    <input type="number" name="user_id" placeholder="User ID" required>
+                    <input type="hidden" name="action" value="payment_status">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'payment_status' %}
+                {% if payments_user %}
+                <table>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Payment ID</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for payment in payments_user %}
+                    <tr>
+                        <td>{{ payment.BookingID }}</td>
+                        <td>{{ payment.PaymentID or 'N/A' }}</td>
+                        <td>${{ payment.AmountPaid or '0.00' }}</td>
+                        <td>{{ payment.PaymentMethod or 'N/A' }}</td>
+                        <td>{{ payment.PaymentStatus or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No payment records found</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 4: Special Requests -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>4. List flight special requests</h2>
+                <form class="query-form" method="GET" action="/booking-details">
+                    <input type="number" name="flight_id" placeholder="Flight ID" required>
+                    <input type="hidden" name="action" value="special_requests">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'special_requests' %}
+                {% if requests_flight %}
+                <table>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Booking ID</th>
+                        <th>Details</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for request in requests_flight %}
+                    <tr>
+                        <td>{{ request.RequestID }}</td>
+                        <td>{{ request.BookingID }}</td>
+                        <td>{{ request.RequestDetails }}</td>
+                        <td>{{ request.Status }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No special requests found</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="back-link">
+            <a href="/admin-home">← Back to Admin Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
