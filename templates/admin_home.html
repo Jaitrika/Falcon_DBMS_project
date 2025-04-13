@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+
+        .logout-button a button {
+            background-color: #ffffff;
+            color: #2193b0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dashboard-container {
+            max-width: 600px;
+            margin: 100px auto;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .dashboard-container h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-container p {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-button {
+            display: inline-block;
+            margin: 12px 8px;
+        }
+
+        .dashboard-button a button {
+            background-color: #fff;
+            color: #2193b0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .dashboard-button a button:hover {
+            background-color: #e0f7fa;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-button">
+        <a href="/logout"><button>🚪 Logout</button></a>
+    </div>
+    <div class="dashboard-container">
+        <h1>Welcome, Admin!</h1>
+        <p>You are now on the Admin Dashboard. Choose what you want to manage below:</p>
+
+        <div class="dashboard-button">
+            <a href="/manage-flights"><button>✈️ Manage Flights</button></a>
+        </div>
+
+        <div class="dashboard-button">
+            <a href="/booking-details"><button>📄 Booking Details</button></a>
+        </div>
+
+    </div>
+</body>
+</html>

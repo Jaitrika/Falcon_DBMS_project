@@ -6,20 +6,31 @@
       <link rel="stylesheet" href="static/css/style.css">
    </head>
    <body>
+    <!-- Flash message display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
       <div class="wrapper">
          <div class="title">
             Admin Login
          </div>
-         <form action="#">
+         <form method="POST" action="/adminLogin">
             <div class="adminlogin-link">
                 Login as User instead? <a href="/login">Login now</a>
              </div>
             <div class="field">
-               <input type="text" required>
+               <input type="text" name='email' required>
                <label>Email Address</label>
             </div>
             <div class="field">
-                <input type="text" required>
+                <input type="text" name='admin_id' required>
                 <label>AdminID</label>
              </div>
             <div class="field">

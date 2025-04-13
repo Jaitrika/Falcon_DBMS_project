@@ -2,9 +2,247 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Manage Flights</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(145deg, #d4fc79, #96e6a1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h1, h2 {
+            color: #2d4030;
+            margin-bottom: 30px;
+        }
+
+        .query-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f3fff3;
+            border-radius: 10px;
+        }
+
+        .query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .query-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="number"],
+        input[type="email"] {
+            padding: 8px;
+            width: 140px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background: #3f9d4c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2f7b39;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3f9d4c;
+            color: white;
+        }
+
+        .no-results {
+            color: #666;
+            font-style: italic;
+            padding: 15px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-link a {
+            color: #3f9d4c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Flight Management & Admin Reports</h1>
 
+        <!-- Query 1: Monthly Revenue -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>1. Monthly Revenue</h2>
+                <form class="query-form" method="GET" action="/manage-flights">
+                    <input type="number" name="month" placeholder="Month" min="1" max="12" required>
+                    <input type="number" name="year" placeholder="Year" min="2000" max="2100" required>
+                    <input type="hidden" name="action" value="monthly_revenue">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'monthly_revenue' %}
+                {% if total_revenue is not none %}
+                    <p><strong>Total Revenue for {{ month }}/{{ year }}:</strong> ${{ total_revenue }}</p>
+                {% else %}
+                    <p class="no-results">No revenue data found for the selected period</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 2: Low Booking Flights -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>2. Flights with Low Bookings</h2>
+                <form class="query-form" method="GET" action="/manage-flights">
+                    <input type="hidden" name="action" value="low_booking_flights">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'low_booking_flights' %}
+                {% if flights %}
+                <table>
+                    <tr>
+                        <th>Flight ID</th>
+                        <th>Flight Number</th>
+                        <th>Airline</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Total Bookings</th>
+                    </tr>
+                    {% for flight in flights %}
+                    <tr>
+                        <td>{{ flight.FlightID }}</td>
+                        <td>{{ flight.FlightNumber }}</td>
+                        <td>{{ flight.AirlineName }}</td>
+                        <td>{{ flight.Source }}</td>
+                        <td>{{ flight.Destination }}</td>
+                        <td>{{ flight.TotalBookings }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No flights with low bookings found</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 3: Frequent Users -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>3. Frequent Users</h2>
+                <form class="query-form" method="GET" action="/manage-flights">
+                    <input type="hidden" name="action" value="frequent_users">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'frequent_users' %}
+                {% if users %}
+                <table>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Total Bookings</th>
+                    </tr>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.UserID }}</td>
+                        <td>{{ user.Name }}</td>
+                        <td>{{ user.Email }}</td>
+                        <td>{{ user.TotalBookings }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No frequent users found</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Query 4: Pending Payments -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>4. View Pending Payments</h2>
+                <form class="query-form" method="GET" action="/manage-flights">
+                    <input type="email" name="email" placeholder="User Email" required>
+                    <input type="hidden" name="action" value="pending_payments">
+                    <button type="submit">Run Query</button>
+                </form>
+            </div>
+            {% if action == 'pending_payments' %}
+                {% if pending_payments %}
+                <table>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Booking ID</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Payment Date</th>
+                    </tr>
+                    {% for payment in pending_payments %}
+                    <tr>
+                        <td>{{ payment.PaymentID }}</td>
+                        <td>{{ payment.BookingID }}</td>
+                        <td>${{ payment.AmountPaid or '0.00' }}</td>
+                        <td>{{ payment.PaymentMethod or 'N/A' }}</td>
+                        <td>{{ payment.PaymentStatus or 'N/A' }}</td>
+                        <td>{{ payment.PaymentDate or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p class="no-results">No pending payments found for this user</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="back-link">
+            <a href="/admin-home">← Back to Admin Dashboard</a>
+        </div>
+    </div>
 </body>
 </html>

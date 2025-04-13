@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+ <html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Login Form Design</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bookingStyle.css') }}">
+     </head>
+
+    <body>
+<div class="booking-form-w3layouts">
+    <!-- Form starts here -->
+    <form action="{{ url_for('booking') }}" method="post">
+       <h2 class="sub-heading-agileits">Booking Details</h2>
+       <div class="main-flex-w3ls-sectns">
+          <div class="field-agileinfo-spc form-w3-agile-text1">
+            <input list="source" name="source" placeholder="From" class="form-control" required>
+            <datalist id="source">
+               {% for city in cities %}
+                 <option value="{{ source }}">
+               {% endfor %}
+             </datalist>
+          </div>
+          <div class="field-agileinfo-spc form-w3-agile-text2">
+            <input list="destination" name="destination" placeholder="To" class="form-control" required>
+          </div>
+       <datalist id="destination">
+        {% for city in cities %}
+          <option value="{{ destination }}">
+        {% endfor %}
+      </datalist>
+       </div>
+       <div class="main-flex-w3ls-sectns">
+          <div class="field-agileinfo-spc form-w3-agile-text1">
+             <input id="datepicker" name="departure_date" type="text" placeholder="Departure Date" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'yyyy-mm-dd';}" required="" class="hasDatepicker">
+       </div>
+       <div class="field-agileinfo-spc form-w3-agile-text2">
+         <select id="travel-class" class="form-control" name="TravelClass" required aria-label="Travel Class">
+         <option value="">Travel Class</option>
+         <option value="Economy">Economy</option>
+         <option value="Business">Business</option>
+         <option value="First Class">First</option>
+     </select>
+     </div>
+     </div>
+       <div class="triple-wthree">
+   <div class="field-agileinfo-spc form-w3-agile-text11">
+      <input type="number" id="adults" name="adults" class="form-control" min="1" max="10" required placeholder="No. of Adults (12+ Yrs)">
+   </div>
+
+   <div class="field-agileinfo-spc form-w3-agile-text22">
+      <input type="number" id="children" name="children" class="form-control" min="0" max="10" required placeholder="No. of Children (2-11 Yrs)">
+   </div>
+
+   <div class="field-agileinfo-spc form-w3-agile-text33">
+      <input type="number" id="infants" name="infants" class="form-control" min="0" max="5" required placeholder="No. of Infants (under 2 Yrs)">
+   </div>
+</div>
+
+       <div class="radio-section">
+          <h6>Select your Fare</h6>
+          <ul class="radio-buttons-w3-agileits">
+             <li>
+                <input type="radio" id="a-option" name="selector1">
+                <label for="a-option">One Way</label>
+                <div class="check"></div>
+             </li>
+             <li>
+                <input type="radio" id="b-option" name="selector1">
+                <label for="b-option">Round-Trip</label>
+                <div class="check">
+                   <div class="inside"></div>
+                </div>
+             </li>
+          </ul>
+          <div class="clear"></div>
+       </div>
+       <div class="main-flex-w3ls-sectns">
+          <div class="field-agileinfo-spc form-w3-agile-text1">
+             <input id="datepicker1" name="Text" type="text" placeholder="Return Date" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'mm/dd/yyyy';}" required="" class="hasDatepicker">
+          </div>
+       </div>
+       <div class="clear"></div>
+       <input type="submit" value="Search">
+       <input type="reset" value="Clear">
+       <div class="clear"></div>
+    </form>
+    <!--// Form ends here -->
+ </div>
+</body>
+</html>
