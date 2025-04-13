@@ -180,6 +180,20 @@ def booking_details():
                  WHERE B.FlightID = %s
              """, (flight_id,))
             results['requests_flight'] = cursor.fetchall()
+        elif action == 'approve_request':
+            request_id = request.args.get('request_id')
+            if request_id:
+                try:
+                    cursor.execute("""
+                        UPDATE SpecialRequests
+                        SET Status = 'Approved'
+                        WHERE RequestID = %s AND Status != 'Approved'
+                    """, (request_id,))
+                    conn.commit()
+                    flash(f"Request ID {request_id} approved successfully.", "success")
+                except Exception as e:
+                    print("Error approving request:", e)
+                    flash("Failed to approve special request.", "error")
 
     except Exception as e:
         print("Error fetching data:", e)

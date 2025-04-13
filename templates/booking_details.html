@@ -258,6 +258,17 @@
                 {% endif %}
             {% endif %}
         </div>
+        <!-- Query 5: Approve Special Request -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>5. Approve Special Request</h2>
+                <form class="query-form" method="GET" action="/booking-details">
+                <input type="number" name="request_id" placeholder="Request ID" required>
+                <input type="hidden" name="action" value="approve_request">
+                <button type="submit">Approve</button>
+                </form>
+            </div>
+        </div>
 
         <div class="back-link">
             <a href="/admin-home">← Back to Admin Dashboard</a>
