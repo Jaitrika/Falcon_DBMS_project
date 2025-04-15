@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seat Selection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 20px;
+        }
+
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .class-section {
+            margin-bottom: 40px;
+        }
+
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .seats-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .aisle {
+            width: 40px;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 5px;
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .seat.booked {
+            background-color: #f44336;
+            cursor: not-allowed;
+        }
+
+        .seat.selected {
+            background-color: #2196f3;
+        }
+
+        .seat:hover:not(.booked):not(.selected) {
+            background-color: #6ec6ff;
+        }
+
+        .info-box {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .message {
+            color: #555;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Select Your Seat</h2>
+
+    <div class="info-box">
+        <span id="seats-left"></span>
+        <div class="message">To redo seat selection, simply refresh the page.</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('payment', booking_id=booking_id) }}">
+
+        <input type="hidden" name="selected_seats" id="selected_seats">
+
+        {% for class_type, seat_rows in seat_map.items() %}
+        <div class="class-section">
+            <h3>{{ class_type }} Class</h3>
+
+            {% for row in seat_rows %}
+            <div class="seat-row">
+                <div class="seats-group">
+                    {% for seat in row[:3] %}
+                    <div class="seat {% if seat.booked %}booked{% endif %}"
+                         data-seat="{{ seat.seat }}"
+                         onclick="selectSeat(this)">
+                        {{ seat.seat }}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="aisle"></div>
+
+                <div class="seats-group">
+                    {% for seat in row[3:] %}
+                    <div class="seat {% if seat.booked %}booked{% endif %}"
+                         data-seat="{{ seat.seat }}"
+                         onclick="selectSeat(this)">
+                        {{ seat.seat }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div style="text-align: center;">
+            <button type="submit">Proceed to Payment</button>
+        </div>
+    </form>
+
+    <script>
+        let selectedSeats = [];
+        const maxSeats = {{ session['num_passengers'] }};
+
+        const counterDisplay = document.getElementById('seats-left');
+        const hiddenInput = document.getElementById('selected_seats');
+
+        updateCounter();
+
+        function selectSeat(element) {
+            const seat = element.getAttribute('data-seat');
+
+            if (element.classList.contains('booked')) return;
+
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedSeats = selectedSeats.filter(s => s !== seat);
+            } else {
+                if (selectedSeats.length >= maxSeats) {
+                    alert(`You have already selected ${maxSeats} seat(s).`);
+                    return;
+                }
+                element.classList.add('selected');
+                selectedSeats.push(seat);
+            }
+
+            hiddenInput.value = selectedSeats.join(',');
+            updateCounter();
+        }
+
+        function updateCounter() {
+            const seatsLeft = maxSeats - selectedSeats.length;
+            counterDisplay.innerText = `You can select ${seatsLeft} more seat(s).`;
+        }
+    </script>
+</body>
+</html>

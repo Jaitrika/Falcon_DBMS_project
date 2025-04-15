@@ -19,6 +19,74 @@ conn = mysql.connector.connect(
 def home():
     return render_template('home.html')
 
+@app.route('/select_seat/<int:flight_id>/<int:booking_id>')
+def select_seat(flight_id, booking_id):
+    cursor = conn.cursor(dictionary=True)
+
+
+    # # Step 1: Get specific class info for the flight
+    # cursor.execute("""
+    #     SELECT ClassType, TotalSeats
+    #     FROM FlightClass
+    #     WHERE FlightID = %s
+    #
+    # """, (flight_id, ))
+    # classes = cursor.fetchall()
+    # Step 1: Get specific class info for the flight
+    travel_class = session.get('travel_class')
+    cursor.execute("""
+            SELECT ClassType, TotalSeats
+            FROM FlightClass
+            WHERE FlightID = %s
+            AND ClassType = %s
+        """, (flight_id, travel_class))
+    classes = cursor.fetchall()
+
+    # Step 2: Get all booked seat numbers
+    cursor.execute("""
+        SELECT SeatNumber
+        FROM Seat
+        WHERE FlightID = %s
+    """, (flight_id,))
+    booked = set(row['SeatNumber'] for row in cursor.fetchall())
+
+    layout_config = {
+        'Economy': 6,   # 6 seats per row
+        'Business': 4,
+        'First': 4
+    }
+
+    seat_map = {}
+
+    # Step 3: Generate seat grid per class
+    for cls in classes:
+        class_type = cls['ClassType']
+        total_seats = cls['TotalSeats']
+        seats_per_row = layout_config.get(class_type, 6)  # Default to 6 seats if not defined
+        rows = total_seats // seats_per_row + (1 if total_seats % seats_per_row != 0 else 0)  # Calculate rows needed
+
+        seat_grid = []
+        seat_number = 1
+
+        for r in range(rows):
+            row = []
+            for c in range(seats_per_row):
+                if seat_number > total_seats:
+                    break
+                col_letter = chr(65 + c)  # A, B, C, ...
+                seat_code = f"{r + 1}{col_letter}"
+                row.append({
+                    'seat': seat_code,
+                    'booked': seat_code in booked
+                })
+                seat_number += 1
+            seat_grid.append(row)
+
+        seat_map[class_type] = seat_grid
+
+    cursor.close()
+    return render_template('seat_selection.html', seat_map=seat_map, flight_id=flight_id, booking_id=booking_id)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -139,7 +207,7 @@ def booking_details():
     try:
         if action == 'user_bookings' and user_id:
             cursor.execute("""
-                 SELECT B.BookingID, B.FlightID, F.AirlineName, F.FlightNumber, 
+                 SELECT B.BookingID, B.FlightID, F.AirlineName, F.FlightNumber,
                         F.Source, F.Destination, F.DepartureTime, B.Status AS BookingStatus
                  FROM Booking B
                  JOIN Flight F ON B.FlightID = F.FlightID
@@ -149,7 +217,7 @@ def booking_details():
 
         elif action == 'flight_tickets' and flight_id:
             cursor.execute("""
-                 SELECT P.UserID, U.Name AS PassengerName, T.TicketID, 
+                 SELECT P.UserID, U.Name AS PassengerName, T.TicketID,
                         T.BookingID, T.PassengerID
                  FROM Ticket T
                  JOIN Booking B ON T.BookingID = B.BookingID
@@ -259,7 +327,7 @@ def manage_flights():
 
         elif action == 'low_booking_flights':
             cursor.execute("""
-                SELECT F.FlightID, F.FlightNumber, F.AirlineName, F.Source, F.Destination, 
+                SELECT F.FlightID, F.FlightNumber, F.AirlineName, F.Source, F.Destination,
                        COUNT(B.BookingID) AS TotalBookings
                 FROM Flight F
                 LEFT JOIN Booking B ON F.FlightID = B.FlightID
@@ -434,14 +502,14 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         cursor.close()
 
         # Redirect to payment after successfully processing the booking
-        return redirect(url_for('payment', booking_id=booking_id))
+        # return redirect(url_for('payment', booking_id=booking_id))
+        return redirect(url_for('select_seat', flight_id=flight_id,booking_id=booking_id))
 
     return render_template('booking2.html', flight_id=flight_id, num_passengers=num_passengers,
                            travel_class=travel_class)
 
 
-import random
-@app.route('/payment/<int:booking_id>', methods=['GET', 'POST'])
+@app.route('/payment/<int:booking_id>', methods=['GET','POST'])
 def payment(booking_id):
     cursor = conn.cursor()
 
@@ -453,7 +521,7 @@ def payment(booking_id):
         return redirect(url_for('home'))
     flight_id = result[0]
 
-    # Get passengers for this booking
+    # Get passengers
     cursor.execute("SELECT PassengerID FROM passenger WHERE BookingID = %s", (booking_id,))
     passenger_ids = cursor.fetchall()
 
@@ -462,7 +530,7 @@ def payment(booking_id):
         flash("Travel class info missing. Please restart booking.", "error")
         return redirect(url_for('home'))
 
-    # Get price per seat
+    # Get price
     cursor.execute("""
         SELECT PricePerSeat FROM flightclass
         WHERE FlightID = %s AND ClassType = %s
@@ -473,86 +541,102 @@ def payment(booking_id):
         return redirect(url_for('home'))
 
     price_per_seat = price_result[0]
-    num_passengers = len(passenger_ids)
-    total_price = price_per_seat * num_passengers
+    total_price = price_per_seat * len(passenger_ids)
 
-    if request.method == 'POST':
-        # POST logic stays the same as before
-        for (passenger_id,) in passenger_ids:
-            # Generate a unique seat
-            while True:
-                seat_number = f"{random.randint(1, 50)}{random.choice(['A', 'B', 'C', 'D'])}"
-                cursor.execute("""
-                    SELECT * FROM seat
-                    WHERE FlightID = %s AND SeatNumber = %s AND ClassType = %s
-                """, (flight_id, seat_number, travel_class))
-                if not cursor.fetchone():
-                    break  # seat is available
-
-            # Get price for class
-            cursor.execute("""
-                SELECT PricePerSeat FROM flightclass
-                WHERE FlightID = %s AND ClassType = %s
-            """, (flight_id, travel_class))
-            price_result = cursor.fetchone()
-            if price_result is None:
-                flash(f"Class {travel_class} not available for this flight.", "error")
-                return redirect(url_for('home'))
-            price = price_result[0]
-            total_price += price  # Add price for this passenger
-
-            # Insert into seat table
-            cursor.execute("""
-                INSERT INTO seat (FlightID, SeatNumber, ClassType, Status, Price)
-                VALUES (%s, %s, %s, 'Booked', %s)
-            """, (flight_id, seat_number, travel_class, price))
-            seat_id = cursor.lastrowid
-
-            # Insert into ticket table
-            cursor.execute("""
-                INSERT INTO ticket (BookingID, PassengerID, SeatID)
-                VALUES (%s, %s, %s)
-            """, (booking_id, passenger_id, seat_id))
-            ticket_id = cursor.lastrowid  # Get the ticket ID for this passenger
-
-            # Update passenger table with assigned SeatID
-            cursor.execute("""
-                UPDATE passenger SET SeatID = %s WHERE PassengerID = %s
-            """, (seat_id, passenger_id))
-
-            cursor.execute("""
-                UPDATE flightclass
-                SET AvailableSeats = GREATEST(AvailableSeats - 1, 0)
-                WHERE FlightID = %s AND ClassType = %s
-            """, (flight_id, travel_class))
-
-            # Insert special request into special_requests table if any
-            special_request = session['special_requests'].get(str(passenger_id), '')  # Fetch the special request
-            if special_request:
-                cursor.execute("""
-                                INSERT INTO specialrequests (RequestDetails, TicketID)
-                                VALUES (%s, %s)
-                            """, (special_request, ticket_id))
-                special_request_id = cursor.lastrowid  # Get SpecialRequestID
-
-                # Update the ticket table with the SpecialRequestID
-                cursor.execute("""
-                                UPDATE ticket SET SpecialRequestID = %s WHERE TicketID = %s
-                            """, (special_request_id, ticket_id))
-
-        # Update booking status to Confirmed
-        cursor.execute("UPDATE booking SET Status = 'Confirmed' WHERE BookingID = %s", (booking_id,))
-
-        conn.commit()
-        cursor.close()
-        flash("Payment successful! Tickets have been booked.", "success")
-        return redirect(url_for('view_tickets', booking_id=booking_id))
-
-    # If GET request, just render page with actual total
     return render_template('payment.html',
-                           flight_id=flight_id,
                            booking_id=booking_id,
+                           flight_id=flight_id,
                            total_price=total_price)
+
+@app.route('/confirm_payment/<int:booking_id>', methods=['POST'])
+def confirm_payment(booking_id):
+    cursor = conn.cursor()
+
+    # Get flight and passengers
+    cursor.execute("SELECT FlightID FROM booking WHERE BookingID = %s", (booking_id,))
+    result = cursor.fetchone()
+    if not result:
+        flash("Invalid booking ID.", "error")
+        return redirect(url_for('home'))
+    flight_id = result[0]
+
+    cursor.execute("SELECT PassengerID FROM passenger WHERE BookingID = %s", (booking_id,))
+    passenger_ids = cursor.fetchall()
+
+    travel_class = session.get('travel_class')
+    selected_seats = request.form.get('selected_seats', '').split(',')
+
+    if len(selected_seats) != len(passenger_ids):
+        flash("Mismatch between seats and passengers.", "error")
+        return redirect(url_for('home'))
+
+    total_price = 0
+    for i, (passenger_id,) in enumerate(passenger_ids):
+        seat_number = selected_seats[i]
+
+        # Check if seat is already booked
+        cursor.execute("""
+            SELECT * FROM seat
+            WHERE FlightID = %s AND SeatNumber = %s AND ClassType = %s AND Status = 'Booked'
+        """, (flight_id, seat_number, travel_class))
+        if cursor.fetchone():
+            flash(f"Seat {seat_number} is already booked.", "error")
+            return redirect(url_for('home'))
+
+        # Get price
+        cursor.execute("""
+            SELECT PricePerSeat FROM flightclass
+            WHERE FlightID = %s AND ClassType = %s
+        """, (flight_id, travel_class))
+        price = cursor.fetchone()[0]
+        total_price += price
+
+        # Insert seat
+        cursor.execute("""
+            INSERT INTO seat (FlightID, SeatNumber, ClassType, Status, Price)
+            VALUES (%s, %s, %s, 'Booked', %s)
+        """, (flight_id, seat_number, travel_class, price))
+        seat_id = cursor.lastrowid
+
+        # Insert ticket
+        cursor.execute("""
+            INSERT INTO ticket (BookingID, PassengerID, SeatID)
+            VALUES (%s, %s, %s)
+        """, (booking_id, passenger_id, seat_id))
+        ticket_id = cursor.lastrowid
+
+        # Update passenger
+        cursor.execute("""
+            UPDATE passenger SET SeatID = %s WHERE PassengerID = %s
+        """, (seat_id, passenger_id))
+
+        # Update seat availability
+        cursor.execute("""
+            UPDATE flightclass
+            SET AvailableSeats = GREATEST(AvailableSeats - 1, 0)
+            WHERE FlightID = %s AND ClassType = %s
+        """, (flight_id, travel_class))
+
+        # Special requests
+        special_request = session['special_requests'].get(str(passenger_id), '')
+        if special_request:
+            cursor.execute("""
+                INSERT INTO specialrequests (RequestDetails, TicketID)
+                VALUES (%s, %s)
+            """, (special_request, ticket_id))
+            special_request_id = cursor.lastrowid
+            cursor.execute("""
+                UPDATE ticket SET SpecialRequestID = %s WHERE TicketID = %s
+            """, (special_request_id, ticket_id))
+
+    cursor.execute("UPDATE booking SET Status = 'Confirmed' WHERE BookingID = %s", (booking_id,))
+    conn.commit()
+    cursor.close()
+
+    flash("Payment successful! Tickets have been booked.", "success")
+    return redirect(url_for('view_tickets', booking_id=booking_id))
+
+
 
 @app.route('/tickets/<int:booking_id>')
 def view_tickets(booking_id):
@@ -573,8 +657,8 @@ def view_tickets(booking_id):
 
     # Get ticket, passenger details from useraccount, seat info, and special request info
     cursor.execute("""
-        SELECT t.TicketID, p.Name AS PassengerName, p.Nationalitya, 
-               s.SeatNumber, s.ClassType, s.Price, 
+        SELECT t.TicketID, p.Name AS PassengerName, p.Nationalitya,
+               s.SeatNumber, s.ClassType, s.Price,
                sr.RequestDetails AS SpecialRequest
         FROM ticket t
         JOIN passenger p ON t.PassengerID = p.PassengerID

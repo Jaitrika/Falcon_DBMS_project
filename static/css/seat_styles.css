@@ -1,0 +1,126 @@
+/* Body and overall page styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f1f1f1;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  text-align: center;
+  font-size: 1.5em;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+h3 {
+  color: #007bff;
+}
+
+/* Seat grid styling */
+.seat-grid {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.seat {
+  width: 50px;
+  height: 50px;
+  background-color: #d8d8d8;
+  border-radius: 6px;
+  text-align: center;
+  line-height: 50px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.seat:hover {
+  background-color: #8e8e8e;
+  transform: scale(1.1);
+}
+
+.seat.selected {
+  background-color: #28a745;
+  color: white;
+}
+
+.seat.booked {
+  background-color: #dc3545;
+  color: white;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Button styling */
+button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+button[type="submit"]:disabled {
+  background-color: #c6c6c6;
+  cursor: not-allowed;
+}
+
+/* Seat grid section titles */
+h3 {
+  margin-top: 20px;
+}
+
+/* Style for seat rows (evenly space out seats) */
+.seat-row {
+  gap: 15px;
+}
+
+.seat.selected {
+  background-color: #28a745;
+  color: white;
+}
+
+.seat.booked {
+  background-color: #dc3545;
+  color: white;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Seat row separation */
+.seat-row:last-child {
+  margin-bottom: 30px;
+}
