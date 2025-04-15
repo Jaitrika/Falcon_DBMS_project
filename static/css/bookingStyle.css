@@ -406,3 +406,20 @@ input[type="number"]:focus {
     border-color: #00bfff; /* Highlight color on focus */
     box-shadow: 0 0 5px #00bfff;
 }
+
+.account-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 15px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.account-button:hover {
+  background-color: #0056b3;
+}

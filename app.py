@@ -205,6 +205,26 @@ def booking_details():
                            user_id=user_id,
                            flight_id=flight_id)
 
+@app.route('/account')
+def account():
+    if 'userid' not in session:
+        flash('Please log in to view your account.', 'error')
+        return redirect(url_for('login'))
+
+    print("User ID from session:", session['userid'])
+
+    cursor = conn.cursor(dictionary=True)
+    try:
+        userid=session.get('userid')
+        cursor.execute("SELECT * FROM useraccount WHERE UserID = %s", (userid,))
+        user = cursor.fetchone()
+        print("Fetched user:", user)
+        return render_template('account.html', user=user)
+    except Exception as e:
+        print("Error fetching user data:", e)
+        flash("Unable to load account data.", "error")
+        return render_template('account.html',user=None)
+
 @app.route('/manage-flights', methods=['GET'])
 def manage_flights():
     if 'admin_id' not in session:
