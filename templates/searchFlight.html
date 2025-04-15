@@ -103,6 +103,23 @@
         <h2>Available Flights</h2>
 
         {% if flights and flights|length > 0 %}
+
+        <!-- FILTER FORM START -->
+        <form method="get" action="{{ url_for('searchFlight') }}">
+            <label>
+                Sort by Price:
+                <select name="price_sort" onchange="this.form.submit()">
+                    <option value="none" {% if price_sort == 'none' %}selected{% endif %}>None</option>
+                    <option value="asc" {% if price_sort == 'asc' %}selected{% endif %}>Low to High</option>
+                    <option value="desc" {% if price_sort == 'desc' %}selected{% endif %}>High to Low</option>
+                </select>
+            </label>
+        </form>
+        
+        
+        <!-- FILTER FORM END -->
+        
+        
             <table>
                 <thead>
                     <tr>
@@ -130,7 +147,7 @@
                             <td>{{ flight.ArrivalTime }}</td>
                             <td>{{ flight.FlightType }}</td>
                             <td>{{ flight.ClassType }}</td>
-                            <td>${{ flight.PricePerSeat }}</td>
+                            <td>₹{{ flight.PricePerSeat }}</td>
                             <td>{{ flight.AvailableSeats }}</td>
                             <td>
                                 <form method="post" action="{{ url_for('booking2', flight_id=flight.FlightID) }}">
