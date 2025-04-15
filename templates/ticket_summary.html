@@ -137,7 +137,12 @@
   </style>
 </head>
 <body>
-
+  <div style="display: flex; justify-content: flex-end; padding: 10px 20px;">
+    <a href="{{ url_for('booking') }}" style="background: #8981e1; color: white; padding: 10px 18px; text-decoration: none; border-radius: 8px; font-weight: 500;">
+      Home
+    </a>
+  </div>
+  
   <div class="booking-details">
     <h2>Booking Details</h2>
     <p><strong>Booking ID:</strong> {{ booking[0] }}</p>
