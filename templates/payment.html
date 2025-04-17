@@ -59,12 +59,19 @@
 
   <div class="payment-container">
     <h2>Confirm Payment</h2>
-    <p><strong>Flight:</strong> {{ flight_id }}</p>
+    <p><strong>Tickets:</strong> {{ session['num_passengers'] }}</p>
     <p><strong>Amount:</strong> ₹{{ total_price }}</p>
 
-    <form method="POST">
-      <button type="submit">Confirm Payment</button>
-    </form>
+    <form method="POST" action="{{ url_for('confirm_payment', booking_id=booking_id) }}">
+    <!-- Seat selection grid input (maybe hidden field with seat numbers) -->
+<!--    <input type="hidden" name="selected_seats" id="selected_seats_input">-->
+      <p><strong>seats:</strong> {{ session['selected_seats'] }}</p>
+
+
+    <!-- Submit Payment Button -->
+    <button type="submit">Pay ₹{{ total_price }}</button>
+</form>
+
   </div>
 
 </body>

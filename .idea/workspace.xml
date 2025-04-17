@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9dfe0648-d5f1-415a-9859-c0e0b7017382" name="Changes" comment="added user profile option">
-      <change afterPath="$PROJECT_DIR$/static/css/seat_styles.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/seat_selection.html" afterDir="false" />
+    <list default="true" id="9dfe0648-d5f1-415a-9859-c0e0b7017382" name="Changes" comment="added seat grid :)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/booking2.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/booking2.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/payment.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/payment.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seat_selection.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/seat_selection.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,14 +48,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Python.app.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/jaitr/PycharmProjects/Falcon"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\jaitr\PycharmProjects\Falcon\static" />
@@ -102,7 +102,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744714604762</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="added seat grid :)">
+      <option name="closed" value="true" />
+      <created>1744729537140</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1744729537140</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -120,6 +128,7 @@
     <MESSAGE value="added user flow complete" />
     <MESSAGE value="added sp request approval query" />
     <MESSAGE value="added user profile option" />
-    <option name="LAST_COMMIT_MESSAGE" value="added user profile option" />
+    <MESSAGE value="added seat grid :)" />
+    <option name="LAST_COMMIT_MESSAGE" value="added seat grid :)" />
   </component>
 </project>

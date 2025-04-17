@@ -80,7 +80,7 @@
         <div class="message">To redo seat selection, simply refresh the page.</div>
     </div>
 
-    <form method="POST" action="{{ url_for('payment', booking_id=booking_id) }}">
+    <form method="POST" action="{{ url_for('select_seat', flight_id=flight_id,booking_id=booking_id) }}">
 
         <input type="hidden" name="selected_seats" id="selected_seats">
 
@@ -119,6 +119,12 @@
         <div style="text-align: center;">
             <button type="submit">Proceed to Payment</button>
         </div>
+        <script>
+    document.querySelector("form").addEventListener("submit", function(event) {
+        console.log("Submitting with seats:", selectedSeats);
+        hiddenInput.Value = selectedSeats.join(',');  // just to be 100% sure it's updated before submission
+    });
+</script>
     </form>
 
     <script>
@@ -131,6 +137,7 @@
         updateCounter();
 
         function selectSeat(element) {
+        console.log("Clicked element:", element);
             const seat = element.getAttribute('data-seat');
 
             if (element.classList.contains('booked')) return;
@@ -148,6 +155,7 @@
             }
 
             hiddenInput.value = selectedSeats.join(',');
+            console.log("Selected Seats (JS):", selectedSeats);
             updateCounter();
         }
 
