@@ -15,7 +15,6 @@ conn = mysql.connector.connect(
     database="falcon"
 )
 
-
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -39,7 +38,6 @@ def select_seat(flight_id, booking_id):
         WHERE FlightID = %s
     """, (flight_id,))
     booked = set(row['SeatNumber'] for row in cursor.fetchall())
-
     layout_config = {
         'Economy': 6,   # 6 seats per row
         'Business': 4,
@@ -52,7 +50,6 @@ def select_seat(flight_id, booking_id):
         total_seats = cls['TotalSeats']
         seats_per_row = layout_config.get(class_type, 6)  # Default to 6 seats if not defined
         rows = total_seats // seats_per_row + (1 if total_seats % seats_per_row != 0 else 0)  # Calculate rows needed
-
         seat_grid = []
         seat_number = 1
 
@@ -120,7 +117,6 @@ def signup():
         email = request.form['email']
         phone = request.form['phone']
         password = request.form['password']
-
         hashed_password = generate_password_hash(password)
 
         cursor = conn.cursor()
@@ -137,7 +133,6 @@ def signup():
             return redirect(url_for('signup'))
 
     return render_template('signup.html')
-
 
 @app.route('/adminLogin', methods=['GET', 'POST'])
 def admin_login():
@@ -200,9 +195,12 @@ def booking_details():
         if action == 'user_bookings' and user_id:
             cursor.execute("""
                  SELECT B.BookingID, B.FlightID, F.AirlineName, F.FlightNumber, 
-                        F.Source, F.Destination, F.DepartureTime, B.Status AS BookingStatus
+                        src.Location AS Source, dest.Location AS Destination, 
+                        F.DepartureTime, B.Status AS BookingStatus
                  FROM Booking B
                  JOIN Flight F ON B.FlightID = F.FlightID
+                 JOIN airport src ON F.SourceIATA = src.IATA_Code
+                 JOIN airport dest ON F.DestinationIATA = dest.IATA_Code
                  WHERE B.UserID = %s
              """, (user_id,))
             results['bookings_user'] = cursor.fetchall()
@@ -222,12 +220,15 @@ def booking_details():
         elif action == 'payment_status' and user_id:
             cursor.execute("""
                  SELECT B.BookingID, B.FlightID, F.AirlineName, F.FlightNumber,
-                        F.Source, F.Destination, F.DepartureTime, B.Status AS BookingStatus,
-                        P.PaymentID, P.AmountPaid, P.PaymentMethod, P.PaymentStatus
-                 FROM Booking B
-                 LEFT JOIN Payments P ON B.BookingID = P.BookingID
-                 JOIN Flight F ON B.FlightID = F.FlightID
-                 WHERE B.UserID = %s
+                src.Location AS Source, dest.Location AS Destination,
+                F.DepartureTime, B.Status AS BookingStatus,
+                P.PaymentID, P.AmountPaid, P.PaymentStatus
+         FROM Booking B
+         LEFT JOIN Payments P ON B.BookingID = P.BookingID
+         JOIN Flight F ON B.FlightID = F.FlightID
+         JOIN airport src ON F.SourceIATA = src.IATA_Code
+         JOIN airport dest ON F.DestinationIATA = dest.IATA_Code
+         WHERE B.UserID = %s
              """, (user_id,))
             results['payments_user'] = cursor.fetchall()
 
@@ -319,12 +320,15 @@ def manage_flights():
 
         elif action == 'low_booking_flights':
             cursor.execute("""
-                SELECT F.FlightID, F.FlightNumber, F.AirlineName, F.Source, F.Destination, 
-                       COUNT(B.BookingID) AS TotalBookings
-                FROM Flight F
-                LEFT JOIN Booking B ON F.FlightID = B.FlightID
-                GROUP BY F.FlightID
-                HAVING TotalBookings < 3
+                 SELECT F.FlightID, F.FlightNumber, F.AirlineName, 
+               src.Location AS Source, dest.Location AS Destination,
+               COUNT(B.BookingID) AS TotalBookings
+        FROM Flight F
+        LEFT JOIN Booking B ON F.FlightID = B.FlightID
+        JOIN airport src ON F.SourceIATA = src.IATA_Code
+        JOIN airport dest ON F.DestinationIATA = dest.IATA_Code
+        GROUP BY F.FlightID
+        HAVING TotalBookings < 3
             """)
             flights = cursor.fetchall()
 
@@ -376,9 +380,6 @@ def searchFlight():
     src = booking_info.get('source')
     dest = booking_info.get('destination')
     departure_date_str = booking_info.get('departure_date_str')
-    # if not departure_date_str:
-        # print("Missing departure date in session")
-        # return redirect(url_for('booking'))
 
     departure_date = datetime.strptime(departure_date_str, '%Y-%m-%d')
     departure_date=str(departure_date)
@@ -386,11 +387,18 @@ def searchFlight():
     required_seats = booking_info.get('required_seats')
 
     cursor = conn.cursor(dictionary=True)  # make sure to define cursor here
+
     query = """
-        SELECT f.*, fc.ClassType, fc.PricePerSeat, fc.AvailableSeats
+        SELECT f.*, 
+               src.Location AS Source, 
+               dest.Location AS Destination,
+               fc.ClassType, fc.PricePerSeat, fc.AvailableSeats
         FROM flight f
         JOIN flightclass fc ON f.FlightID = fc.FlightID
-        WHERE f.Source = %s AND f.Destination = %s AND DATE(f.DepartureTime) = %s AND fc.ClassType= %s
+        JOIN airport src ON f.SourceIATA = src.IATA_Code
+        JOIN airport dest ON f.DestinationIATA = dest.IATA_Code
+        WHERE f.SourceIATA = %s AND f.DestinationIATA = %s 
+              AND DATE(f.DepartureTime) = %s AND fc.ClassType = %s
     """
     cursor.execute(query, (src, dest, departure_date, TravelClass))
     results = cursor.fetchall()
@@ -417,89 +425,65 @@ def searchFlight():
 def booking():
     cursor = conn.cursor(dictionary=True)
 
-    # Fetch dropdown options always
-    cursor.execute("SELECT DISTINCT Source FROM flight")
-    source = [row['Source'] for row in cursor.fetchall()]
+    # Fetch unique airport locations for dropdown (not IATA)
+    cursor.execute("SELECT DISTINCT Location FROM Airport")
+    source = [row['Location'] for row in cursor.fetchall()]
 
-    cursor.execute("SELECT DISTINCT Destination FROM flight")
-    destination = [row['Destination'] for row in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT Location FROM Airport")
+    destination = [row['Location'] for row in cursor.fetchall()]
 
-    # Handle form submission
     if request.method == 'POST':
-        src = request.form.get('source')
-        dest = request.form.get('destination')
+        src_location = request.form.get('source')
+        dest_location = request.form.get('destination')
         departure_date_str = request.form.get('departure_date')
-        print(departure_date_str)
-        # departure_date = datetime.strptime(departure_date_str, '%Y-%m-%d')
         TravelClass = request.form.get('TravelClass')
-
-        session['travel_class'] = TravelClass
 
         adults = int(request.form.get('adults', 0))
         children = int(request.form.get('children', 0))
         required_seats = adults + children
 
-        session['num_passengers'] = required_seats
+        # Convert Location to IATA Code using Airport table
+        cursor.execute("SELECT IATA_Code FROM Airport WHERE Location = %s", (src_location,))
+        src_row = cursor.fetchone()
+        src = src_row['IATA_Code'] if src_row else None
 
+        cursor.execute("SELECT IATA_Code FROM Airport WHERE Location = %s", (dest_location,))
+        dest_row = cursor.fetchone()
+        dest = dest_row['IATA_Code'] if dest_row else None
+
+        if not src or not dest:
+            flash("Invalid source or destination selected.", "error")
+            return redirect(url_for('booking'))
+
+        # Store both IATA codes and locations in session
+        session['travel_class'] = TravelClass
+        session['num_passengers'] = required_seats
         session['booking_info'] = {
-            'source': src,
-            'destination': dest,
+            'source': src,                         # IATA Code for query
+            'destination': dest,                   # IATA Code for query
+            'source_location': src_location,       # For display
+            'destination_location': dest_location, # For display
             'departure_date_str': departure_date_str,
             'travel_class': TravelClass,
             'adults': adults,
             'children': children,
             'required_seats': required_seats
         }
-
         try:
-            # booking_info = session.get('booking_info', {})
-
-            # src = booking_info.get('source')
-            # dest = booking_info.get('destination')
-            # departure_date = booking_info.get('departure_date_str')
-            # departure_date = datetime.strptime(departure_date, '%Y-%m-%d')
-            # TravelClass = booking_info.get('travel_class')
-            # required_seats = booking_info.get('required_seats')
-
-            # query = """
-            #     SELECT f.*, fc.ClassType, fc.PricePerSeat, fc.AvailableSeats
-            #     FROM flight f
-            #     JOIN flightclass fc ON f.FlightID = fc.FlightID
-            #     WHERE f.Source = %s AND f.Destination = %s AND DATE(f.DepartureTime) = %s AND fc.ClassType= %s"""
-            # cursor.execute(query, (src, dest, departure_date, TravelClass))
-            # results = cursor.fetchall()
-
-            # price_sort = request.args.get('price_sort', 'none')
-
-            # if price_sort == 'asc':
-            #     results.sort(key=lambda x: x['PricePerSeat'])
-            # elif price_sort == 'desc':
-            #     results.sort(key=lambda x: x['PricePerSeat'], reverse=True)
-
-            # filtered_results=[
-            #     flight for flight in results
-            #     if flight['AvailableSeats'] >= required_seats
-            # ]
-
-            # session['filtered_results'] = json.dumps(filtered_results)
-
-            # if not results:
-            #     flash("No matching flights found", "info")
-
             return redirect(url_for('searchFlight'))
-
-            # return render_template('searchFlight.html', flights=filtered_results, price_sort=price_sort)
-
         except Exception as e:
             print("Search error:", e)
             flash("Something went wrong during the search.", "error")
             return redirect(url_for('booking'))
 
     return render_template('booking.html', source=source, destination=destination)
-
+from flask import Flask, render_template, request, redirect, session, url_for, flash
+from datetime import datetime
 
 @app.route('/booking2/<int:flight_id>', methods=['GET', 'POST'])
 def booking2(flight_id):
+    print("Method:", request.method, "| booking_id in session:", session.get('booking_id'))
+
     if 'userid' not in session:
         flash('Please login to book a flight.', 'error')
         return redirect(url_for('login'))
@@ -510,25 +494,12 @@ def booking2(flight_id):
     if request.method == 'POST':
         cursor = conn.cursor()
 
-        # 1. Create the booking record
-        booking_query = """
-            INSERT INTO booking (FlightID, UserID, Status)
-            VALUES (%s, %s, 'Pending')
-        """
-        cursor.execute(booking_query, (flight_id, session['userid']))
-        conn.commit()
+        # Print form for debug
+        print("Form data received:", request.form)
 
-        booking_id = cursor.lastrowid  # Newly created booking ID
+        passenger_details = {}
 
-        passenger_query = """
-            INSERT INTO passenger (UserID, BookingID, Name, DateOfBirth, Address, IDNumber, Nationalitya, TravelType)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-
-        """
-
-        passenger_ids = []
-        passenger_details = {}  # Dictionary to store PassengerID and special requests
-
+        # Validate all passenger details first
         for i in range(num_passengers):
             name = request.form.get(f'name_{i}')
             dob = request.form.get(f'dob_{i}')
@@ -536,40 +507,78 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             id_number = request.form.get(f'id_number_{i}')
             nationality = request.form.get(f'nationality_{i}')
             travel_type = request.form.get(f'travel_type_{i}')
-            special_request = request.form.get(f'special_requests_{i}', '')  # Default to empty string if not provided
+            special_request = request.form.get(f'special_requests_{i}', '')
 
-            # Ensure that the passenger's data is valid
-            if not dob or not address or not id_number or not nationality or not travel_type:
-                flash(f"Missing required details for passenger {i + 1}.", "error")
-                return redirect(url_for('booking2', flight_id=flight_id))
+            if not all([name, dob, address, id_number, nationality, travel_type]):
+                flash(f"Missing required details for passenger {i + 1}. Please fill out all fields.", 'error')
+                print(f"[ERROR] Passenger {i+1} missing fields -> name={name}, dob={dob}, address={address}, id={id_number}, nationality={nationality}, travel_type={travel_type}")
+                return redirect(request.url)
 
-            # Insert into passenger table
+            passenger_details[i] = {
+                "name": name,
+                "dob": dob,
+                "address": address,
+                "id_number": id_number,
+                "nationality": nationality,
+                "travel_type": travel_type,
+                "special_request": special_request
+            }
+
+        # If valid and booking not yet created, insert into booking + payments
+        if 'booking_id' not in session:
+            # 1. Insert booking
+            booking_query = """
+                INSERT INTO booking (FlightID, UserID, Status)
+                VALUES (%s, %s, 'Pending')
+            """
+            cursor.execute(booking_query, (flight_id, session['userid']))
+            conn.commit()
+
+            booking_id = cursor.lastrowid
+            session['booking_id'] = booking_id
+            print("[+] Booking inserted:", booking_id)
+
+            # 2. Insert pending payment
+            payment_query = """
+                INSERT INTO payments (BookingID, PaymentDate, AmountPaid, PaymentStatus)
+                VALUES (%s, %s, %s, %s)
+            """
+            payment_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute(payment_query, (booking_id, payment_date, 0, 'Pending'))
+            conn.commit()
+        else:
+            booking_id = session['booking_id']
+            print("[~] Using existing booking ID:", booking_id)
+
+        # 3. Insert passenger records
+        passenger_query = """
+            INSERT INTO passenger (UserID, BookingID, Name, DateOfBirth, Address, IDNumber, Nationalitya, TravelType)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        special_requests_map = {}
+
+        for i in range(num_passengers):
+            data = passenger_details[i]
             cursor.execute(passenger_query, (
                 session['userid'],
                 booking_id,
-                name,
-                dob,
-                address,
-                id_number,
-                nationality,
-                travel_type
+                data['name'],
+                data['dob'],
+                data['address'],
+                data['id_number'],
+                data['nationality'],
+                data['travel_type']
             ))
-
             conn.commit()
-
-            # Get the actual PassengerID from the last insert
             passenger_id = cursor.lastrowid
+            special_requests_map[passenger_id] = data['special_request']
 
-            # Store passenger special request with the actual PassengerID in the dictionary
-            passenger_details[passenger_id] = special_request
-
-        # Store the passenger special requests in the session after processing all passengers
-        session['special_requests'] = passenger_details
+        session['special_requests'] = special_requests_map
         cursor.close()
-        return redirect(url_for('select_seat', flight_id=flight_id,booking_id=booking_id))
 
-    return render_template('booking2.html', flight_id=flight_id, num_passengers=num_passengers,
-                           travel_class=travel_class)
+        return redirect(url_for('select_seat', flight_id=flight_id, booking_id=booking_id))
+
+    return render_template('booking2.html', flight_id=flight_id, num_passengers=num_passengers, travel_class=travel_class)
 
 
 @app.route('/payment/<int:booking_id>', methods=['GET','POST'])
@@ -627,13 +636,10 @@ def confirm_payment(booking_id):
     cursor.execute("SELECT PassengerID FROM passenger WHERE BookingID = %s", (booking_id,))
     passenger_ids = cursor.fetchall()
 
-
     travel_class = session.get('travel_class')
-    # selected_seats = request.form.get('selected_seats', '').split(',')
     print(passenger_ids)
     selected_seats=session['selected_seats']
     print(selected_seats)
-    #print("Form passenger data:", request.form)
 
     if len(selected_seats) != len(passenger_ids):
         flash("Mismatch between seats and passengers.", "error")
@@ -698,14 +704,26 @@ def confirm_payment(booking_id):
                 UPDATE ticket SET SpecialRequestID = %s WHERE TicketID = %s
             """, (special_request_id, ticket_id))
 
+    # 3. Confirm booking
     cursor.execute("UPDATE booking SET Status = 'Confirmed' WHERE BookingID = %s", (booking_id,))
     conn.commit()
+
+    # 4. Update the existing pending payment record
+    updated_payment_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    payment_update_query = """
+        UPDATE payments
+        SET PaymentStatus = 'Success',
+            PaymentDate = %s,
+            AmountPaid = %s
+        WHERE BookingID = %s AND PaymentStatus = 'Pending'
+    """
+    cursor.execute(payment_update_query, (updated_payment_date, total_price, booking_id))
+    conn.commit()
+
     cursor.close()
 
     flash("Payment successful! Tickets have been booked.", "success")
     return redirect(url_for('view_tickets', booking_id=booking_id))
-
-
 
 @app.route('/tickets/<int:booking_id>')
 def view_tickets(booking_id):
@@ -713,9 +731,13 @@ def view_tickets(booking_id):
 
     # Get booking and flight details
     cursor.execute("""
-        SELECT b.BookingID, f.AirlineName, f.FlightNumber, f.Source, f.Destination, f.DepartureTime, f.ArrivalTime
+        SELECT b.BookingID, f.AirlineName, f.FlightNumber, 
+               src_airport.Location AS Source, dest_airport.Location AS Destination,
+               f.DepartureTime, f.ArrivalTime
         FROM booking b
         JOIN flight f ON b.FlightID = f.FlightID
+        JOIN airport src_airport ON f.SourceIATA = src_airport.IATA_Code
+        JOIN airport dest_airport ON f.DestinationIATA = dest_airport.IATA_Code
         WHERE b.BookingID = %s
     """, (booking_id,))
     booking = cursor.fetchone()
@@ -735,11 +757,8 @@ def view_tickets(booking_id):
         LEFT JOIN specialrequests sr ON t.SpecialRequestID = sr.RequestID
         WHERE t.BookingID = %s
     """, (booking_id,))
-
     tickets = cursor.fetchall()
-
     return render_template('ticket_summary.html', booking=booking, tickets=tickets)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

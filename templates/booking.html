@@ -125,7 +125,7 @@
                     <label>From</label>
                     <input list="source" name="source" placeholder="Departure city" required>
                     <datalist id="source">
-                        {% for city in cities %}
+                        {% for city in source %}
                             <option value="{{ city }}">
                         {% endfor %}
                     </datalist>
@@ -134,7 +134,7 @@
                     <label>To</label>
                     <input list="destination" name="destination" placeholder="Arrival city" required>
                     <datalist id="destination">
-                        {% for city in cities %}
+                        {% for city in destination %}
                             <option value="{{ city }}">
                         {% endfor %}
                     </datalist>
@@ -174,30 +174,6 @@
                 </div>
             </div>
 
-            <!-- Trip Type -->
-            <!-- <div class="radio-section">
-                <h6>Trip Type</h6>
-                <ul class="radio-buttons-w3-agileits">
-                    <li>
-                        <input type="radio" id="one_way" name="trip_type" value="one_way" required>
-                        <label for="one_way">One Way</label>
-                    </li>
-                    <li>
-                        <input type="radio" id="round_trip" name="trip_type" value="round_trip">
-                        <label for="round_trip">Round Trip</label>
-                    </li>
-                </ul>
-            </div> -->
-
-            <!-- Return Date -->
-            <!-- <div class="main-flex-w3ls-sectns">
-                <div>
-                    <label>Return Date</label>
-                    <input type="date" name="return_date" placeholder="Optional">
-                </div>
-            </div> -->
-
-            <!-- Submit Buttons -->
             <div class="form-buttons">
                 <input type="submit" value="Search Flights ✈️">
                 <input type="reset" value="Clear Form">
