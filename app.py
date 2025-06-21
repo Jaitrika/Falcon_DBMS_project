@@ -246,12 +246,20 @@ def booking_details():
             if request_id:
                 try:
                     cursor.execute("""
-                        UPDATE SpecialRequests
-                        SET Status = 'Approved'
-                        WHERE RequestID = %s AND Status != 'Approved'
-                    """, (request_id,))
+                                            UPDATE SpecialRequests
+                                            SET Status = 'Approved'
+                                            WHERE RequestID = %s AND Status != 'Approved'
+                                        """, (request_id,))
                     conn.commit()
                     flash(f"Request ID {request_id} approved successfully.", "success")
+
+                    admin_id = session['admin_id']
+
+                    cursor.execute("""
+                                        INSERT INTO AdminActions (AdminID, ActionType, RequestID) VALUES (%s, %s, %s)""",
+                                   (admin_id, 'Approve Request', request_id))
+                    conn.commit()
+                    flash("Request approved.", "success")
                 except Exception as e:
                     print("Error approving request:", e)
                     flash("Failed to approve special request.", "error")
@@ -286,13 +294,14 @@ def account():
         flash("Unable to load account data.", "error")
         return render_template('account.html',user=None)
 
-@app.route('/manage-flights', methods=['GET'])
+@app.route('/manage-flights', methods=['GET', 'POST'])
 def manage_flights():
     if 'admin_id' not in session:
         flash("Access denied. Please log in as admin.", "error")
         return redirect(url_for('admin_login'))
 
-    action = request.args.get('action')
+    action = request.form.get('action') if request.method == 'POST' else request.args.get('action')
+
     cursor = conn.cursor(dictionary=True)
 
     # Default values for parameters
@@ -307,7 +316,80 @@ def manage_flights():
     payments = []
 
     try:
-        if action == 'monthly_revenue':
+        print("hi")
+        if request.method == 'POST' and action == 'add_flight':
+            print("hihi")
+            flight_number = request.form['flight_number']
+            airline_name = request.form['airline_name']
+            source = request.form['source']
+            destination = request.form['destination']
+            departure_time = request.form['departure_time']
+            arrival_time = request.form['arrival_time']
+            duration = request.form['duration']
+            status = request.form['status']
+            flight_type = request.form['flight_type']
+
+            cursor.execute("""
+                INSERT INTO Flight (AirlineName,FlightNumber, SourceIATA, DestinationIATA, DepartureTime, ArrivalTime,Duration,Status,FlightType)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (airline_name, flight_number, source, destination, departure_time, arrival_time, duration, status,
+                  flight_type))
+            conn.commit()
+
+            flight_id = cursor.lastrowid
+
+            economy_seats = int(request.form['economy_seats'])
+            economy_price = float(request.form['economy_price'])
+
+            business_seats = int(request.form['business_seats'])
+            business_price = float(request.form['business_price'])
+
+            first_class_seats = int(request.form.get('first_class_seats'))
+            first_class_price = float(request.form.get('first_class_price'))
+
+            cursor.execute("""
+                INSERT INTO FlightClass (FlightID, ClassType, TotalSeats, AvailableSeats, PricePerSeat)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (flight_id, 'Economy', economy_seats, economy_seats, economy_price))
+
+            if business_seats > 0:
+                cursor.execute("""
+                    INSERT INTO FlightClass (FlightID, ClassType, TotalSeats, AvailableSeats, PricePerSeat)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (flight_id, 'Business', business_seats, business_seats, business_price))
+
+            if first_class_seats > 0:
+                cursor.execute("""
+                    INSERT INTO FlightClass (FlightID, ClassType, TotalSeats, AvailableSeats, PricePerSeat)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (flight_id, 'First Class', first_class_seats, first_class_seats, first_class_price))
+
+            conn.commit()
+
+            # Log admin action
+            admin_id = session['admin_id']
+            cursor.execute("""
+            INSERT INTO AdminActions (AdminID, ActionType, FlightID)
+            VALUES (%s, %s, %s)""", (admin_id, 'Add Flight', flight_id))
+            conn.commit()
+            print("hihihi")
+            flash("Flight added successfully!", "success")
+
+        elif request.method == 'POST' and action == 'delete_flight':
+            flight_id = request.form.get('flight_id')
+            cursor.execute("UPDATE Flight SET Status = %s WHERE FlightID = %s", ('Canceled', flight_id))
+            conn.commit()
+            admin_id = session['admin_id']
+            cursor.execute("""
+            INSERT INTO AdminActions (AdminID, ActionType, FlightID)
+            VALUES (%s, %s, %s)
+            """, (admin_id, 'Delete Flight', flight_id))
+            conn.commit()
+            print("hihihidel")
+            flash("Flight deleted successfully!", "success")
+
+
+        elif action == 'monthly_revenue':
             cursor.execute("""
                 SELECT SUM(P.AmountPaid) AS TotalRevenue
                 FROM Payments P

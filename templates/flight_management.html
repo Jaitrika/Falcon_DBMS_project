@@ -43,12 +43,14 @@
 
         .query-form {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            align-items: center;
+            margin-top: 10px;
+            align-items: flex-end;
         }
 
         input[type="number"],
-        input[type="email"] {
+        input[type="email"],input[type="text"],input[type="datetime-local"] {
             padding: 8px;
             width: 140px;
             border: 1px solid #ccc;
@@ -239,6 +241,52 @@
                 {% endif %}
             {% endif %}
         </div>
+
+        <!-- Query 5: Add a New Flight -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>5. Add a New Flight</h2>
+                <form class="query-form" method="POST" action="/manage-flights">
+                    <input type="hidden" name="action" value="add_flight">
+                    <div><input type="text" name="flight_number" placeholder="Flight Number" required></div>
+                    <div><input type="text" name="airline_name" placeholder="Airline Name" required></div>
+                    <div><input type="text" name="source" placeholder="SourceIATA" required></div>
+                    <div><input type="text" name="destination" placeholder="DestinationIATA" required></div>
+                    <div><input type="datetime-local" name="departure_time" placeholder="Departure Date" required></div>
+                    <div><input type="datetime-local" name="arrival_time" placeholder="Arrival Date" required></div>
+                    <div><input type="text" name="duration" placeholder="Duration" required></div>
+                    <div><input type="text" name="status" placeholder="Status" required></div>
+                    <div><input type="text" name="flight_type" placeholder="Flight Type" required></div>
+                    <!-- Economy -->
+                    <div><input type="number" name="economy_seats" placeholder="Economy Seats" required></div>
+                    <div><input type="number" step="0.01" name="economy_price" placeholder="Economy Price" required></div>
+
+                    <!-- Business -->
+                    <div><input type="number" name="business_seats" placeholder="Business Seats" required></div>
+                    <div><input type="number" step="0.01" name="business_price" placeholder="Business Price" required></div>
+
+                    <!-- First Class -->
+                    <div><input type="number" name="first_class_seats" placeholder="First Class Seats" required></div>
+                    <div><input type="number" step="0.01" name="first_class_price" placeholder="First Class Price" required></div>
+
+
+                    <div><button type="submit">Add Flight</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Query 6: Delete a Flight -->
+        <div class="query-section">
+            <div class="query-header">
+                <h2>6. Delete a Flight</h2>
+                <form class="query-form" method="POST" action="/manage-flights" onsubmit="return confirm('Are you sure you want to cancel this flight?');">
+                    <input type="hidden" name="action" value="delete_flight">
+                    <input type="number" name="flight_id" placeholder="Flight ID" required>
+                    <button type="submit" class="delete-button">Cancel Flight</button>
+                </form>
+            </div>
+        </div>
+
 
         <div class="back-link">
             <a href="/admin-home">← Back to Admin Dashboard</a>

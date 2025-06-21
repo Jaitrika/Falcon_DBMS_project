@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9dfe0648-d5f1-415a-9859-c0e0b7017382" name="Changes" comment="fixed seat grid :)">
+    <list default="true" id="9dfe0648-d5f1-415a-9859-c0e0b7017382" name="Changes" comment="changed flight and payment">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/booking.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/booking.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/booking2.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/booking2.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/booking_details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/booking_details.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/payment.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/payment.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/flight_management.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/flight_management.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +116,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744906859141</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="changed flight and payment">
+      <option name="closed" value="true" />
+      <created>1750493903753</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1750493903753</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -139,6 +144,7 @@
     <MESSAGE value="added user profile option" />
     <MESSAGE value="added seat grid :)" />
     <MESSAGE value="fixed seat grid :)" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed seat grid :)" />
+    <MESSAGE value="changed flight and payment" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed flight and payment" />
   </component>
 </project>
